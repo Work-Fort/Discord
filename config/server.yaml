@@ -1,7 +1,7 @@
 # WorkFort Discord Server Configuration
 
 name: "WorkFort"
-description: "Hardware-isolated workspaces for AI agents. An Arch Linux distribution with Firecracker VMs. Build safely."
+description: "Hardware-isolated workspaces for AI agents. An Arch Linux distribution with Firecracker VMs."
 
 # Server settings
 settings:
