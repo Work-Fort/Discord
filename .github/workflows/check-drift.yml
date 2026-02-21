@@ -1,0 +1,131 @@
+name: Check Discord Configuration Drift
+
+on:
+  schedule:
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check-drift:
+    name: Check for Configuration Drift
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install mise
+        uses: jdx/mise-action@v2
+
+      - name: Set up age key for SOPS
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+        run: |
+          echo "$SOPS_AGE_KEY" > age-key.txt
+          chmod 600 age-key.txt
+
+      - name: Backup current Discord state
+        id: backup
+        env:
+          SOPS_AGE_KEY_FILE: age-key.txt
+        run: |
+          export DISCORD_BOT_TOKEN=$(sops -d secrets.yaml | yq .discord_bot_token)
+          export DISCORD_GUILD_ID=$(sops -d secrets.yaml | yq .discord_guild_id)
+          mise run backup
+          BACKUP_DIR=$(ls -td backups/* | head -1)
+          echo "backup_dir=${BACKUP_DIR}" >> $GITHUB_OUTPUT
+
+      - name: Check for drift
+        id: check
+        run: |
+          BACKUP_DIR="${{ steps.backup.outputs.backup_dir }}"
+          DRIFT=false
+          if ! diff -q "${BACKUP_DIR}/roles.yaml" config/roles.yaml > /dev/null 2>&1; then
+            echo "Drift detected in roles.yaml"
+            DRIFT=true
+          fi
+          if ! diff -q "${BACKUP_DIR}/channels.yaml" config/channels.yaml > /dev/null 2>&1; then
+            echo "Drift detected in channels.yaml"
+            DRIFT=true
+          fi
+          if [ "$DRIFT" = "true" ]; then
+            echo "drift=true" >> $GITHUB_OUTPUT
+            echo "::warning::Configuration drift detected!"
+          else
+            echo "drift=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create issue if drift detected
+        if: steps.check.outputs.drift == 'true'
+        uses: actions/github-script@v7
+        env:
+          BACKUP_DIR: ${{ steps.backup.outputs.backup_dir }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        with:
+          script: |
+            const title = '⚠️ Discord Configuration Drift Detected';
+            const backupDir = process.env.BACKUP_DIR;
+            const runUrl = process.env.RUN_URL;
+            const now = new Date().toISOString();
+
+            const body = `## Discord Configuration Drift Warning
+
+            The Discord server configuration has drifted from the version-controlled configuration.
+
+            ### What This Means
+
+            Someone manually changed Discord settings via the Discord UI instead of updating the YAML config files in git.
+
+            ### Action Required
+
+            1. Review the differences between current state and config files
+            2. Decide which is correct:
+               - If Discord is correct: Update YAML files to match
+               - If config is correct: Run \`mise run sync\` to restore
+            3. Commit any changes to git
+
+            ### Backup Location
+
+            Current Discord state exported to: \`${backupDir}\`
+
+            ### Details
+
+            - Workflow run: ${runUrl}
+            - Triggered by: Daily drift check
+            - Date: ${now}
+
+            This issue was automatically created by the drift detection workflow.`;
+
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: ['discord-drift']
+            });
+
+            if (issues.data.length === 0) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['discord-drift', 'infrastructure']
+              });
+              console.log('Created new issue for drift warning');
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issues.data[0].number,
+                body: `⚠️ Drift still detected as of ${now}\n\nBackup: \`${backupDir}\`\n\nWorkflow run: ${runUrl}`
+              });
+              console.log('Updated existing issue');
+            }
+
+      - name: Clean up secrets
+        if: always()
+        run: rm -f age-key.txt

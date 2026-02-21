@@ -1,0 +1,47 @@
+name: Sync Discord Configuration
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'config/**.yaml'
+      - 'secrets.yaml'
+      - '.github/workflows/sync-discord.yml'
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    name: Sync Configuration to Discord
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install mise
+        uses: jdx/mise-action@v2
+
+      - name: Set up age key for SOPS
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+        run: |
+          mkdir -p ~/.config/sops/age
+          echo "$SOPS_AGE_KEY" > age-key.txt
+          chmod 600 age-key.txt
+
+      - name: Sync configuration to Discord
+        env:
+          SOPS_AGE_KEY_FILE: age-key.txt
+        run: |
+          export DISCORD_BOT_TOKEN=$(sops -d secrets.yaml | yq .discord_bot_token)
+          export DISCORD_GUILD_ID=$(sops -d secrets.yaml | yq .discord_guild_id)
+          mise run sync
+
+      - name: Clean up secrets
+        if: always()
+        run: |
+          rm -f age-key.txt
