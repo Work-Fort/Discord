@@ -1,0 +1,53 @@
+# WorkFort Discord Infrastructure
+# Tool version management and task definitions
+
+[tools]
+go = "1.23"
+# SOPS for secrets encryption (pinned for reproducibility)
+"aqua:getsops/sops" = "3.11.0"
+# age encryption tool (backend for SOPS, pinned for reproducibility)
+"aqua:FiloSottile/age" = "1.3.1"
+# yq for parsing YAML secrets
+"aqua:mikefarah/yq" = "latest"
+
+[tasks.setup]
+description = "Initial Discord server setup from YAML configs"
+run = """
+export SOPS_AGE_KEY_FILE=age-key.txt
+export DISCORD_BOT_TOKEN=$(sops -d secrets.yaml | yq .discord_bot_token)
+export DISCORD_GUILD_ID=$(sops -d secrets.yaml | yq .discord_guild_id)
+go run ./cmd/discord-bot setup
+"""
+
+[tasks.sync]
+description = "Sync config changes to Discord server"
+run = "go run ./cmd/discord-bot sync"
+
+[tasks.backup]
+description = "Export current Discord state to YAML"
+run = "go run ./cmd/discord-bot backup"
+
+[tasks.validate]
+description = "Validate YAML configuration files"
+run = """
+export SOPS_AGE_KEY_FILE=age-key.txt
+export DISCORD_BOT_TOKEN=$(sops -d secrets.yaml | yq .discord_bot_token)
+export DISCORD_GUILD_ID=$(sops -d secrets.yaml | yq .discord_guild_id)
+go run ./cmd/discord-bot validate
+"""
+
+[tasks.build]
+description = "Build the discord-bot binary"
+run = "go build -o discord-bot ./cmd/discord-bot"
+
+[tasks.test]
+description = "Run tests"
+run = "go test ./..."
+
+[tasks.secrets_decrypt]
+description = "Decrypt secrets.yaml for viewing"
+run = "SOPS_AGE_KEY_FILE=age-key.txt sops --decrypt secrets.yaml"
+
+[tasks.secrets_edit]
+description = "Edit encrypted secrets (requires age-key.txt)"
+run = "SOPS_AGE_KEY_FILE=age-key.txt sops secrets.yaml"

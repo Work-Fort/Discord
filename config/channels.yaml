@@ -1,0 +1,98 @@
+# WorkFort Discord Channel Structure
+
+categories:
+  - name: "WELCOME & INFO"
+    position: 1
+    channels:
+      - name: "welcome"
+        type: "text"
+        topic: "Welcome to WorkFort! Check out the links to get started."
+        position: 1
+
+      - name: "announcements"
+        type: "text"
+        topic: "Dev logs, blog posts, and official WorkFort announcements"
+        position: 2
+        permissions:
+          everyone:
+            send_messages: false
+            add_reactions: true
+
+      - name: "rules"
+        type: "text"
+        topic: "Community guidelines and code of conduct"
+        position: 3
+        permissions:
+          everyone:
+            send_messages: false
+            add_reactions: true
+
+  - name: "COMMUNITY"
+    position: 2
+    channels:
+      - name: "introductions"
+        type: "text"
+        topic: "Introduce yourself to the community!"
+        position: 1
+
+      - name: "general"
+        type: "text"
+        topic: "General discussion about WorkFort"
+        position: 2
+
+      - name: "show-and-tell"
+        type: "text"
+        topic: "Share what you're building with WorkFort"
+        position: 3
+
+  - name: "TECHNICAL"
+    position: 3
+    channels:
+      - name: "support"
+        type: "text"
+        topic: "Help with installation, setup, and usage"
+        position: 1
+
+      - name: "architecture"
+        type: "text"
+        topic: "Deep technical discussions about WorkFort internals"
+        position: 2
+
+      - name: "contributing"
+        type: "text"
+        topic: "For contributors and potential contributors"
+        position: 3
+
+  - name: "DEVELOPMENT"
+    position: 4
+    channels:
+      - name: "github-feed"
+        type: "text"
+        topic: "Automated GitHub notifications (PRs, issues, releases)"
+        position: 1
+
+      - name: "dev-discussions"
+        type: "forum"
+        topic: "Threaded development discussions - use tags!"
+        position: 2
+        available_tags:
+          - name: "firecracker"
+            emoji: "🔥"
+          - name: "nexus"
+            emoji: "🦀"
+          - name: "btrfs"
+            emoji: "💾"
+          - name: "mcp"
+            emoji: "🔌"
+          - name: "question"
+            emoji: "❓"
+          - name: "idea"
+            emoji: "💡"
+
+  - name: "OFF-TOPIC"
+    position: 5
+    channels:
+      - name: "off-topic"
+        type: "text"
+        topic: "Non-WorkFort chat and casual conversation"
+        position: 1

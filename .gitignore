@@ -1,0 +1,37 @@
+# Environment variables and secrets (mise pattern)
+# .env is committed (shared config)
+# .env.local is git-ignored (secrets) - but we use SOPS instead
+.env.local
+*.env.local
+
+# SOPS age encryption keys (NEVER commit)
+age-key.txt
+age-key-*.txt
+
+# Build artifacts
+discord-bot
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Go build cache
+.cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+tmp/
+temp/

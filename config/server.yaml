@@ -1,0 +1,18 @@
+# WorkFort Discord Server Configuration
+
+name: "WorkFort"
+description: "Hardware-isolated workspaces for AI agents. An Arch Linux distribution with Firecracker VMs."
+
+# Server settings
+settings:
+  verification_level: "low"  # low, medium, high, very_high
+  default_notification_level: "only_mentions"
+  explicit_content_filter: "all_members"
+
+# Server features
+features:
+  community: true
+  discoverable: false  # Pre-alpha - not public yet
+
+# Vanity URL (requires boost level)
+# vanity_url: "workfort"  # Try to claim when available

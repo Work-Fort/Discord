@@ -1,0 +1,9 @@
+# SOPS encryption configuration
+# Uses age encryption (modern, simple, secure)
+# Generate age key with: age-keygen -o age-key.txt
+# Then replace the placeholder below with the public key from age-key.txt
+
+creation_rules:
+  - path_regex: secrets\.yaml$
+    age: >-
+      age1qanlk54y83p25ahvq85fnm4ttel7v3lvck4l5zjdtc2zuawy2u7q9tqp83

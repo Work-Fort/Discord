@@ -1,0 +1,36 @@
+# WorkFort Discord Roles
+
+roles:
+  - name: "Admin"
+    color: "#e74c3c"  # Red
+    permissions:
+      - administrator
+    hoist: true
+    mentionable: false
+
+  - name: "Contributor"
+    color: "#3498db"  # Blue
+    permissions:
+      - send_messages
+      - embed_links
+      - attach_files
+      - read_message_history
+      - use_external_emojis
+      - add_reactions
+      - manage_messages  # Can clean up spam in their threads
+    hoist: true
+    mentionable: true
+    description: "Has submitted a PR to WorkFort"
+
+  - name: "Early Adopter"
+    color: "#9b59b6"  # Purple
+    permissions:
+      - send_messages
+      - embed_links
+      - attach_files
+      - read_message_history
+      - use_external_emojis
+      - add_reactions
+    hoist: true
+    mentionable: true
+    description: "First 100 community members"
