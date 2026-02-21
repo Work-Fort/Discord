@@ -44,16 +44,16 @@ run = "mkdir -p build && go build -o build/discord-bot ./cmd/discord-bot"
 description = "Run tests"
 run = "go test ./..."
 
-[tasks.secrets_decrypt]
+[tasks.secrets-decrypt]
 description = "Decrypt secrets.yaml for viewing"
 run = "SOPS_AGE_KEY_FILE=age-key.txt sops --decrypt secrets.yaml"
 
-[tasks.secrets_edit]
+[tasks.secrets-edit]
 description = "Edit encrypted secrets (requires age-key.txt)"
 run = "SOPS_AGE_KEY_FILE=age-key.txt sops secrets.yaml"
 
-[tasks.create_invite]
-description = "Create or retrieve permanent server invite link"
+[tasks.get-invite]
+description = "Get or create permanent server invite link"
 run = """
 export SOPS_AGE_KEY_FILE=age-key.txt
 export DISCORD_BOT_TOKEN=$(sops -d secrets.yaml | yq .discord_bot_token)
