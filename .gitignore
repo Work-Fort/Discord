@@ -8,8 +8,8 @@
 age-key.txt
 age-key-*.txt
 
-# Build artifacts (binary in root, not cmd/ directory)
-/discord-bot
+# Build artifacts
+build/
 *.exe
 *.dll
 *.so

@@ -38,7 +38,7 @@ go run ./cmd/discord-bot validate
 
 [tasks.build]
 description = "Build the discord-bot binary"
-run = "go build -o discord-bot ./cmd/discord-bot"
+run = "mkdir -p build && go build -o build/discord-bot ./cmd/discord-bot"
 
 [tasks.test]
 description = "Run tests"
