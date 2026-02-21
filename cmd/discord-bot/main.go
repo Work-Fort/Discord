@@ -6,6 +6,7 @@ import (
 
 	"github.com/Work-Fort/Discord/internal/backup"
 	"github.com/Work-Fort/Discord/internal/config"
+	"github.com/Work-Fort/Discord/internal/invite"
 	"github.com/Work-Fort/Discord/internal/setup"
 	"github.com/Work-Fort/Discord/internal/sync"
 )
@@ -27,6 +28,8 @@ func main() {
 		runBackup()
 	case "validate":
 		runValidate()
+	case "create-invite":
+		runCreateInvite()
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown command: %s\n", command)
 		printUsage()
@@ -41,10 +44,11 @@ func printUsage() {
 	fmt.Println("  discord-bot <command>")
 	fmt.Println()
 	fmt.Println("Commands:")
-	fmt.Println("  setup     Initial Discord server setup from YAML configs")
-	fmt.Println("  sync      Sync config changes to Discord server")
-	fmt.Println("  backup    Export current Discord state to YAML")
-	fmt.Println("  validate  Validate YAML configuration files")
+	fmt.Println("  setup          Initial Discord server setup from YAML configs")
+	fmt.Println("  sync           Sync config changes to Discord server")
+	fmt.Println("  backup         Export current Discord state to YAML")
+	fmt.Println("  validate       Validate YAML configuration files")
+	fmt.Println("  create-invite  Create or retrieve permanent server invite link")
 	fmt.Println()
 	fmt.Println("Environment variables:")
 	fmt.Println("  DISCORD_BOT_TOKEN  Discord bot token (required)")
@@ -107,4 +111,17 @@ func runValidate() {
 	fmt.Printf("  Server: %s\n", cfg.Server.Name)
 	fmt.Printf("  Channels: %d categories\n", len(cfg.Channels.Categories))
 	fmt.Printf("  Roles: %d roles\n", len(cfg.Roles.Roles))
+}
+
+func runCreateInvite() {
+	cfg, err := config.Load()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error loading config: %v\n", err)
+		os.Exit(1)
+	}
+
+	if err := invite.Run(cfg); err != nil {
+		fmt.Fprintf(os.Stderr, "Error creating invite: %v\n", err)
+		os.Exit(1)
+	}
 }

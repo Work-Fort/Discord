@@ -51,3 +51,12 @@ run = "SOPS_AGE_KEY_FILE=age-key.txt sops --decrypt secrets.yaml"
 [tasks.secrets_edit]
 description = "Edit encrypted secrets (requires age-key.txt)"
 run = "SOPS_AGE_KEY_FILE=age-key.txt sops secrets.yaml"
+
+[tasks.create_invite]
+description = "Create or retrieve permanent server invite link"
+run = """
+export SOPS_AGE_KEY_FILE=age-key.txt
+export DISCORD_BOT_TOKEN=$(sops -d secrets.yaml | yq .discord_bot_token)
+export DISCORD_GUILD_ID=$(sops -d secrets.yaml | yq .discord_guild_id)
+go run ./cmd/discord-bot create-invite
+"""
